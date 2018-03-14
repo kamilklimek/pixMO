@@ -4,6 +4,7 @@
     const HEIGHT_OF_DOCUMENT = document.body.scrollHeight;
     let width = document.body.clientWidth;
     const proportion = width/ HEIGHT_OF_DOCUMENT;
+    const DELAY_MOVEMENT = 200;
     
     function Textures(){
         this.grasses = [
@@ -66,6 +67,8 @@
         }
     }
 
+
+
     function Character(name){
         this.name = name;
         this.x = 0;
@@ -77,13 +80,44 @@
         this.div.style.width = 1/25 * width + "px";
         this.div.style.height = 1/25 * width  + "px";
 
-        this.moveX = function(){
-            this.div.style.transform = "translate(25px)";
-            this.x = this.div.style.transform.value;
-            console.log(this.x);
-            this.y +=1;
-            console.log(this.y);
+        this.transform = function(){
+            this.div.style.transform = "translate("+(this.x * rangeToMove)+"px, "+(this.y * rangeToMove)+"px)";
+        }
+        const rangeToMove = 1/25 * width;
+        this.moveX = function(moveRight){
+            if(moveRight){
+                if(this.x < COUNT_OF_ELEMENTS * 1/25 * width){
+                    this.x+=1;
+                    this.transform();
+                }
+                
+            }else{
+                if(this.x !== 0){
+                    this.x-=1;
+                    this.transform();
+                }
+                    
+                
+            }
+        }
 
+        this.moveY = function(moveUp){
+            if(moveUp){
+                if(this.y !== 0){
+                    this.y-=1;
+                    this.transform();
+                }
+                
+            }else{
+                if(this.y < COUNT_OF_ELEMENTS * 1/25 * width){
+                    this.y+=1;
+                    this.transform();
+                }
+                    
+                
+            }
+            console.log(this.y);
+            
         }
     }
 
@@ -105,13 +139,43 @@
     const char = new Character("hi");
     board.wrapper.appendChild(char.div);
     
-    char.moveX();
-    char.moveX();
-    char.moveX();
-    char.moveX();
-    char.moveX();
-    char.moveX();
-    char.moveX();
+    
+
+    const moveCharacter = function(e){
+
+        switch(e.keyCode){
+
+            case 37: //left arrow
+                setTimeout(function(){
+                    char.moveX(false)
+                }, DELAY_MOVEMENT);            
+            break;
+
+            case 38: //up arrow;
+                setTimeout(function(){
+                    char.moveY(true)
+                }, DELAY_MOVEMENT); 
+            break;
+
+            case 39: //right arrow;
+                setTimeout(function(){
+                    char.moveX(true)
+                }, DELAY_MOVEMENT);   
+            break;
+
+            case 40: //down arrow;
+                setTimeout(function(){
+                    char.moveY(false)
+                }, DELAY_MOVEMENT); 
+            break;
+            
+
+        }
+
+    }
+
+    document.addEventListener("keydown", moveCharacter, false);
+  
     
 
 
