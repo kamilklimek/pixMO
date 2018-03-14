@@ -1,2 +1,3 @@
 # pixMO
-pixMo is a javascript game.
+2D RPG game is creating while learning javascript.
+
