@@ -1,6 +1,12 @@
 (function(){
     const boardGame = document.getElementById("board");
+
+    const documentWidth = document.body.clientWidth;
+    const documentHeight = window.innerHeight || document.documentElement.clientHeight || document.body.clientHeight;
     
+    boardGame.width = documentWidth;
+    boardGame.height = documentHeight;
+
     const textures = [
         grounds = [
             "graphic/ground/dry_grass.png",
@@ -25,26 +31,6 @@
         ] 
     ]
 
-   /*
-    const textures = {
-        grounds: {
-            0 : "graphic/ground/dry_grass.png",
-            1 : "graphic/ground/grass_gray.png",
-            2 : "graphic/ground/grass_light.jpg",
-            3 : "graphic/groundground_1.jpg"
-        },
-
-        outfits: {
-            0 : "graphic/characters/person.png"
-        },
-
-        obstacles: {
-            0 : "graphic/obstacles/stones.png"
-        }
-    }
-   */
-
-
     let Character = function(_name, _x, _y){
         let x = _x;
         let y = _y;
@@ -58,13 +44,11 @@
             },
 
             setX : function(_x){
-               //if(x>8 || (x==8 && _x > x))
-                    x = _x;
+                x = _x;
             },
 
             setY : function(_y){
-                //if(y>7 || (y==7 && _y > y))
-                    y = _y;
+                y = _y;
             },
 
             getX : function(){
@@ -103,20 +87,40 @@
         }
     }
 
+    let Obstacle = function(_x, _y, _texture){
+        let x = _x;
+        let y = _y;
+        let texture = _texture;
+        
+        return {
+            getPosition : function(){
+                return [x,y];
+            },
 
-    let Board = function(_cols, _rows) {
+           
+            setPosition : function(_x, _y){
+                x = _x;
+                y = _y;
+            },
+
+            getTexture : function() {
+                return texture;
+            }
+        }
+    }
+
+
+    let Board = function(_cols) {
         const canvasBoard = boardGame.getContext("2d");
         let cols = _cols;
-        let rows = _rows;
-        
-        let colsToSee = 20;
-        let rowsToSee = 14;
+        let rows = Math.round(documentHeight*_cols / documentWidth);
 
-        let objectSize = 50;
+
+        let objectSize = documentWidth/_cols;
         let allObjects = [];
-        let displayedObjects = [];
+        let allObstacles = [];
         
-        let hero = new Character("Janusz", 10, 9);
+        let hero = new Character("Janusz", 0, 0);
 
         return {
             initializeDefaultBoard : function(){
@@ -125,99 +129,64 @@
                     for(let j=0;j<cols;j++){
                             textNr = Math.round(Math.random()*6);
                             allObjects.push(new Field(j, i, textures[0][textNr]));
-                       
+                            if(i%7 == 0  && j%5 == 0 && i != 0){
+                                let stone = new Obstacle(j, i, textures[2][0]);
+                                allObjects.push(stone);
+                                allObstacles.push(stone);
+                            }
                     }
                 }
             },
 
             checkHeroCanMove : function(x, y) {
-                const heroIsNearEndX = x < 8 || x > _cols-8;
-                const herOIsNearEndY = y < 8 || y > _rows-8
-                
-                return heroIsNearEndX || herOIsNearEndY ? false : true;
+                const heroIsNearEndX = x < 0 || x >= cols;
+                const herOIsNearEndY = y < 0 || y >= rows;
+                const collisionExists = !this.checkCollision(x, y);
+                console.log(collisionExists);
+                return (heroIsNearEndX || herOIsNearEndY ) && collisionExists ? false : true;
 
 
             },
 
-            checkFieldIsSeen : function(field){
-                const fieldPosition = field.getPosition();
-                const heroPosition = hero.getPosition();
-                
-                const isInRangeX = fieldPosition[0] <= heroPosition[0] + colsToSee / 2 + 1  && fieldPosition[0] >= heroPosition[0]- colsToSee / 2;
-                const isInRangeY = fieldPosition[1] <= heroPosition[1] + rowsToSee / 2   && fieldPosition[1] >= heroPosition[1] - rowsToSee / 2;
-                
-                return isInRangeX && isInRangeY ? true : false;
-                
-            },
-
-            calculateSeenFields : function(){
-                displayedObjects = [];
-                allObjects.forEach(el =>{
-                    if(this.checkFieldIsSeen(el)){
-                        displayedObjects.push(el);
+            checkCollision : function(x, y){
+                let collision = 0;
+                allObstacles.forEach(el => {
+                    const obstaclePosition = el.getPosition();
+                    const collisionExists = x === obstaclePosition[0] && y === obstaclePosition[1];
+                    if(x === obstaclePosition[0] && y === obstaclePosition[1]){
+                        collision++;
                     }
                 })
-
+                return collision > 0 ? true : false;
             },
 
+
             drawBoard : function(){
-                canvasBoard.clearRect(0, 0, 1000, 700);
-                canvasBoard.beginPath();
-                canvasBoard.font = '17px serif';
-
-                let col = 0;
-                let row = 0;
-                displayedObjects.sort(function(a, b){
-                    const positionA = a.getPosition();
-                    const positionB = b.getPosition();
-                    
-                    if(positionA[1] < positionB[1]){
-                        return -1;
-                    }else if(positionA[1] > positionB[1]){
-                        return 1;
-                    }else{
-                        
-                        if(positionA[0] < positionB[0]){
-                            return -1;
-                        }else if(positionA[0] > positionB[0]){
-                            return 1;
-                        }else{
-                            return 0;
-                        }
-                    }
-
-                    return 0;
-                });
-                displayedObjects.forEach(el =>{
+                allObjects.forEach(el =>{
                     let field = new Image();
                     const positions = el.getPosition();
                     
                     field.addEventListener("load", function(){
-                       // canvasBoard.drawImage(field, positions[0]*objectSize, positions[1]*objectSize, objectSize, objectSize);
-                        canvasBoard.drawImage(field,col*objectSize, row*objectSize, objectSize, objectSize);
+                        canvasBoard.drawImage(field, positions[0]*objectSize, positions[1]*objectSize, objectSize, objectSize);
+                       // canvasBoard.drawImage(field,col*objectSize, row*objectSize, objectSize, objectSize);
                         
                       //  canvasBoard.fillText(positions, positions[0]*objectSize, positions[1]*objectSize);
                       //  canvasBoard.fillText(positions, col*objectSize, row*objectSize);
                       
-                        if(col<=20)col++;
-                        else{
-                            row++;
-                            col=0;
-                        };
+                        
                     })
                     field.src = el.getTexture();                    
                 })
                 let champ = new Image();
-                const positionHero = [10, 9];
+                const positionHero = hero.getPosition();
                 champ.addEventListener("load", function(){
                     canvasBoard.drawImage(champ, 0, 0, 250, 250, positionHero[0]*objectSize, positionHero[1]*objectSize, objectSize, objectSize);
                 })
-                champ.src = "graphic/characters/person.png";
+                champ.src = hero.getTexture();
             },
 
             drawGame : function(){
 
-                this.calculateSeenFields();
                 this.drawBoard();
             },
 
@@ -245,8 +214,6 @@
                         let movementRight = x + 1;
                         if(this.checkHeroCanMove(movementRight, y)){
                             hero.setX(movementRight);
-                        }else{
-                            console.log("Dalej nie moge");
                         }
                         break;
 
@@ -264,9 +231,8 @@
         }
     }
 
-    const board = new Board(40, 22);
+    const board = new Board(30);
     board.initializeDefaultBoard();
-    board.calculateSeenFields();
     board.drawBoard();
 
     document.addEventListener("keydown",function(e){
