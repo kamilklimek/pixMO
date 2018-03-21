@@ -1,8 +1,9 @@
 (function(){
-    const MAP = 
-    "WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWXXXXXYYYYYXXXXXYYYYYXXXXXYYYYYXXXXXYYYYYXXXXXYYYYYXXXXXYYYYYXXXXXYYYYYXXXXXYYYYYXXXXXYYYYYXXXXXYYYYYXXXXXYYYYYXXXXXYYYYYXXXXXYYYYYXXXXXYYYYYXXXXXYYYYYXXXXXYYYYYXXXXXYYYYYXXXXXYYYYYXXXXXYYYYYXXXXXYYYYYXXXXXYYYYYXXXXXYYYYYXXXXXYYYYYXXXXXYYYYYXXXXXYYYYYXXXXXYYYYYXXXXXYYYYYXXXXXYYYYYXXXXXYYYYYXXXXXYYYYYXXXXXYYYYYXXXXXYYYYYXXXXXYYYYYXXXXXYYYYYXXXXXYYYYYXXXXXYYYYYXXXXXYYYYYXXXXXYYYYYXXXXXYYYYYXXXXXYYYYYXXXXXYYYYYXXXXXYYYYYXXXXXYYYYYXXXXXYYYYYXXXXXYYYYYXXXXXYYYYYXXXXXYYYYYXXXXXYYYYYXXXXXYYYYYXXXXXYYYYYXXXXXYYYYYXXXXXYYYYYXXXXXYYYYYXXXXXYYYYYXXXXXYYYYYXXXXXYYYYYXXXXXYYYYYXXXXXYYYYYXXXXXYYYYYXXXXXYYYYYXXXXXYYYYYXXXXXYYYYYXXXXXYYYYYXXXXXYYYYYXXXXXYYYYYXXXXXYYYYYXXXXXYYYYYXXXXXYYYYYXXXXXYYYYYXXXXXYYYYYXXXXXYYYYYXXXXXYYYYY";
+   // const MAP = 
+   // "WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWXXXXXYYYYYXXXXXYYYYYXXXXXYYYYYXXXXXYYYYYXXXXXYYYYYXXXXXYYYYYXXXXXYYYYYXXXXXYYYYYXXXXXYYYYYXXXXXYYYYYXXXXXYYYYYXXXXXYYYYYXXXXXYYYYYXXXXXYYYYYXXXXXYYYYYXXXXXYYYYYXXXXXYYYYYXXXXXYYYYYXXXXXYYYYYXXXXXYYYYYXXXXXYYYYYXXXXXYYYYYXXXXXYYYYYXXXXXYYYYYXXXXXYYYYYXXXXXYYYYYXXXXXYYYYYXXXXXYYYYYXXXXXYYYYYXXXXXYYYYYXXXXXYYYYYXXXXXYYYYYXXXXXYYYYYXXXXXYYYYYXXXXXYYYYYXXXXXYYYYYXXXXXYYYYYXXXXXYYYYYXXXXXYYYYYXXXXXYYYYYXXXXXYYYYYXXXXXYYYYYXXXXXYYYYYXXXXXYYYYYXXXXXYYYYYXXXXXYYYYYXXXXXYYYYYXXXXXYYYYYXXXXXYYYYYXXXXXYYYYYXXXXXYYYYYXXXXXYYYYYXXXXXYYYYYXXXXXYYYYYXXXXXYYYYYXXXXXYYYYYXXXXXYYYYYXXXXXYYYYYXXXXXYYYYYXXXXXYYYYYXXXXXYYYYYXXXXXYYYYYXXXXXYYYYYXXXXXYYYYYXXXXXYYYYYXXXXXYYYYYXXXXXYYYYYXXXXXYYYYYXXXXXYYYYYXXXXXYYYYYXXXXXYYYYYXXXXXYYYYY";
 
-
+    console.log(map_city);
+    const MAP = "FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFGGHHHHGGHHHHGGHHHHGGGHHHHFFFFFGGHHHHGGHHHHGGHHHHGFGHHHHFFFFFGGHHHHGGHHHHGGHHHHGGGHHHHFFWWWGGGRGGGGGRGGGGGRGGGGGGRGGFFWWWGGGRRRRRRRRRRRRRRRRRRRRRRRRWWWGGGGGGGGGRGGGGGGGGGGGGGGGFFWWWGGGGGGGGGRGGGGGGGGGGGGGGGFFWWWGGGGGGGGRRRGGGGGGGGGGGGGGFFWWWGGGGGGGGRFRGGGGGGGGGGGGGGFFFFFGGGGGGGGRRRGGGGGGGGGGGGGGFFFFFGGGGGGGGGGGGGGGGGGGGGGGGGFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF";
 
     const boardGame = document.getElementById("board");
 
@@ -33,7 +34,11 @@
 
         water = [
             "graphic/water/sea.jpg"
-        ] 
+        ],
+
+        trees = [
+            "graphic/tree/tree_1.png"
+        ]
     ]
 
     let Character = function(_name, _x, _y){
@@ -119,13 +124,13 @@
         const canvasBoard = boardGame.getContext("2d");
         let cols = _cols;
         let rows = Math.round(documentHeight*_cols / documentWidth);
-
+        console.log(rows);
 
         let objectSize = documentWidth/_cols;
         let allObjects = [];
         let allObstacles = [];
         
-        let hero = new Character("Janusz", 0, 4);
+        let hero = new Character("Janusz", 5, 4);
 
         return {
             initializeDefaultBoard : function(){
@@ -146,16 +151,29 @@
                 for(let i = 0; i<rows; i++){
                     for(let j = 0; j<cols; j++){
                         const fieldIsWater = MAP[indexOfMap] === "W";
-                        const fieldIsGrass = MAP[indexOfMap] === "X";
-                        const fieldIsSand = MAP[indexOfMap] === "Y";
+                        const fieldIsGrass = MAP[indexOfMap] === "G";
+                        const fieldIsWay = MAP[indexOfMap] === "R";
+                        const fieldIsForest = MAP[indexOfMap] === "F";
+                        
+                        const fieldIsHouse = MAP[indexOfMap] === "H";
                         if(fieldIsGrass){
-                            allObjects.push(new Field(j, i, textures[0][3]));
+                            allObjects.push(new Field(j, i, textures[0][2]));
                         }else if(fieldIsWater){
                             let water = new Obstacle(j, i, textures[3][0]);
                             allObjects.push(water);
                             allObstacles.push(water);
-                        }else if(fieldIsSand){
+                        }else if(fieldIsWay){
                             allObjects.push(new Field(j, i, textures[0][0]));
+                        }else if(fieldIsForest){
+                            let tree = new Obstacle(j, i, textures[4][0]);
+                            let grass = new Obstacle(j, i, textures[0][2]);
+                            allObjects.push(grass);
+                            allObjects.push(tree);
+                            allObstacles.push(tree);
+                        }else if(fieldIsHouse){
+                            let house = new Obstacle(j, i, textures[0][1]);
+                            allObjects.push(house);
+                            allObstacles.push(house);
                         }
                         indexOfMap++;
                     }
