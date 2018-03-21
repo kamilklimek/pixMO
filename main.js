@@ -1,4 +1,9 @@
 (function(){
+    const MAP = 
+    "WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWXXXXXYYYYYXXXXXYYYYYXXXXXYYYYYXXXXXYYYYYXXXXXYYYYYXXXXXYYYYYXXXXXYYYYYXXXXXYYYYYXXXXXYYYYYXXXXXYYYYYXXXXXYYYYYXXXXXYYYYYXXXXXYYYYYXXXXXYYYYYXXXXXYYYYYXXXXXYYYYYXXXXXYYYYYXXXXXYYYYYXXXXXYYYYYXXXXXYYYYYXXXXXYYYYYXXXXXYYYYYXXXXXYYYYYXXXXXYYYYYXXXXXYYYYYXXXXXYYYYYXXXXXYYYYYXXXXXYYYYYXXXXXYYYYYXXXXXYYYYYXXXXXYYYYYXXXXXYYYYYXXXXXYYYYYXXXXXYYYYYXXXXXYYYYYXXXXXYYYYYXXXXXYYYYYXXXXXYYYYYXXXXXYYYYYXXXXXYYYYYXXXXXYYYYYXXXXXYYYYYXXXXXYYYYYXXXXXYYYYYXXXXXYYYYYXXXXXYYYYYXXXXXYYYYYXXXXXYYYYYXXXXXYYYYYXXXXXYYYYYXXXXXYYYYYXXXXXYYYYYXXXXXYYYYYXXXXXYYYYYXXXXXYYYYYXXXXXYYYYYXXXXXYYYYYXXXXXYYYYYXXXXXYYYYYXXXXXYYYYYXXXXXYYYYYXXXXXYYYYYXXXXXYYYYYXXXXXYYYYYXXXXXYYYYYXXXXXYYYYYXXXXXYYYYYXXXXXYYYYYXXXXXYYYYYXXXXXYYYYYXXXXXYYYYYXXXXXYYYYY";
+
+
+
     const boardGame = document.getElementById("board");
 
     const documentWidth = document.body.clientWidth;
@@ -120,12 +125,12 @@
         let allObjects = [];
         let allObstacles = [];
         
-        let hero = new Character("Janusz", 0, 0);
+        let hero = new Character("Janusz", 0, 4);
 
         return {
             initializeDefaultBoard : function(){
                 let textNr = 0;
-                for(let i =0;i<rows;i++){
+                /* for(let i =0;i<rows;i++){
                     for(let j=0;j<cols;j++){
                             textNr = Math.round(Math.random()*6);
                             allObjects.push(new Field(j, i, textures[0][textNr]));
@@ -135,7 +140,27 @@
                                 allObstacles.push(stone);
                             }
                     }
+                } */
+
+                let indexOfMap = 0;
+                for(let i = 0; i<rows; i++){
+                    for(let j = 0; j<cols; j++){
+                        const fieldIsWater = MAP[indexOfMap] === "W";
+                        const fieldIsGrass = MAP[indexOfMap] === "X";
+                        const fieldIsSand = MAP[indexOfMap] === "Y";
+                        if(fieldIsGrass){
+                            allObjects.push(new Field(j, i, textures[0][3]));
+                        }else if(fieldIsWater){
+                            let water = new Obstacle(j, i, textures[3][0]);
+                            allObjects.push(water);
+                            allObstacles.push(water);
+                        }else if(fieldIsSand){
+                            allObjects.push(new Field(j, i, textures[0][0]));
+                        }
+                        indexOfMap++;
+                    }
                 }
+
             },
 
             checkHeroCanMove : function(x, y) {
@@ -143,7 +168,7 @@
                 const herOIsNearEndY = y < 0 || y >= rows;
                 const collisionExists = !this.checkCollision(x, y);
                 console.log(collisionExists);
-                return (heroIsNearEndX || herOIsNearEndY ) && collisionExists ? false : true;
+                return !(heroIsNearEndX || herOIsNearEndY ) ^ collisionExists ? false : true;
 
 
             },
@@ -153,7 +178,7 @@
                 allObstacles.forEach(el => {
                     const obstaclePosition = el.getPosition();
                     const collisionExists = x === obstaclePosition[0] && y === obstaclePosition[1];
-                    if(x === obstaclePosition[0] && y === obstaclePosition[1]){
+                    if(collisionExists){
                         collision++;
                     }
                 })
