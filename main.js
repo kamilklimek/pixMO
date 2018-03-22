@@ -1,8 +1,4 @@
 (function(){
-   // const MAP = 
-   // "WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWXXXXXYYYYYXXXXXYYYYYXXXXXYYYYYXXXXXYYYYYXXXXXYYYYYXXXXXYYYYYXXXXXYYYYYXXXXXYYYYYXXXXXYYYYYXXXXXYYYYYXXXXXYYYYYXXXXXYYYYYXXXXXYYYYYXXXXXYYYYYXXXXXYYYYYXXXXXYYYYYXXXXXYYYYYXXXXXYYYYYXXXXXYYYYYXXXXXYYYYYXXXXXYYYYYXXXXXYYYYYXXXXXYYYYYXXXXXYYYYYXXXXXYYYYYXXXXXYYYYYXXXXXYYYYYXXXXXYYYYYXXXXXYYYYYXXXXXYYYYYXXXXXYYYYYXXXXXYYYYYXXXXXYYYYYXXXXXYYYYYXXXXXYYYYYXXXXXYYYYYXXXXXYYYYYXXXXXYYYYYXXXXXYYYYYXXXXXYYYYYXXXXXYYYYYXXXXXYYYYYXXXXXYYYYYXXXXXYYYYYXXXXXYYYYYXXXXXYYYYYXXXXXYYYYYXXXXXYYYYYXXXXXYYYYYXXXXXYYYYYXXXXXYYYYYXXXXXYYYYYXXXXXYYYYYXXXXXYYYYYXXXXXYYYYYXXXXXYYYYYXXXXXYYYYYXXXXXYYYYYXXXXXYYYYYXXXXXYYYYYXXXXXYYYYYXXXXXYYYYYXXXXXYYYYYXXXXXYYYYYXXXXXYYYYYXXXXXYYYYYXXXXXYYYYYXXXXXYYYYYXXXXXYYYYYXXXXXYYYYYXXXXXYYYYYXXXXXYYYYY";
-
-    console.log(map_city);
     const MAP = "FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFGGHHHHGGHHHHGGHHHHGGGHHHHFFFFFGGHHHHGGHHHHGGHHHHGFGHHHHFFFFFGGHHHHGGHHHHGGHHHHGGGHHHHFFWWWGGGRGGGGGRGGGGGRGGGGGGRGGFFWWWGGGRRRRRRRRRRRRRRRRRRRRRRRRWWWGGGGGGGGGRGGGGGGGGGGGGGGGFFWWWGGGGGGGGGRGGGGGGGGGGGGGGGFFWWWGGGGGGGGRRRGGGGGGGGGGGGGGFFWWWGGGGGGGGRFRGGGGGGGGGGGGGGFFFFFGGGGGGGGRRRGGGGGGGGGGGGGGFFFFFGGGGGGGGGGGGGGGGGGGGGGGGGFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF";
 
     const boardGame = document.getElementById("board");
@@ -39,142 +35,105 @@
         trees = [
             "graphic/tree/tree_1.png"
         ]
-    ]
+    ];
 
-    let Character = function(_name, _x, _y){
+    let PrototypeObject = function(_x, _y, _texture){
+        let self = {};
+
         let x = _x;
         let y = _y;
-        let texture = textures[1][0];
 
-        const name = _name;
-        return {
+        let texture = _texture;
 
-            getPosition : function(){
-                return [x,y];
-            },
-
-            setX : function(_x){
-                x = _x;
-            },
-
-            setY : function(_y){
-                y = _y;
-            },
-
-            getX : function(){
-                return x;
-            },
-
-            getY : function(){
-                return y;
-            },
-
-            getTexture : function() {
-                return texture;
-            }
+        self.getPosition = function() {
+            return [x, y];
         }
+
+        self.getTexture = function() {
+            return texture;
+        }
+
+        self.setX = function(_x) {
+            x = _x;
+        }
+
+        self.setY = function(_y) {
+            y = _y;
+        }
+
+        return self; 
+
+    }
+
+    let Hero = function(_name, _x, _y){
+        let self = PrototypeObject(_x, _y, textures[1][0]);
+
+        let name = _name;
+
+        self.getName = function() {
+            return name;
+        }
+
+        return self;
     }
 
     let Field = function(_x, _y, _texture){
-        let x = _x;
-        let y = _y;
-        let texture = _texture;
-        
-        return {
-            getPosition : function(){
-                return [x,y];
-            },
+        let self = PrototypeObject(_x, _y, _texture);
 
-           
-            setPosition : function(_x, _y){
-                x = _x;
-                y = _y;
-            },
-
-            getTexture : function() {
-                return texture;
-            }
-        }
+        return self;
     }
 
     let Obstacle = function(_x, _y, _texture){
-        let x = _x;
-        let y = _y;
-        let texture = _texture;
-        
-        return {
-            getPosition : function(){
-                return [x,y];
-            },
+        let self = PrototypeObject(_x, _y, _texture);
 
-           
-            setPosition : function(_x, _y){
-                x = _x;
-                y = _y;
-            },
-
-            getTexture : function() {
-                return texture;
-            }
-        }
+        return self;
     }
-
 
     let Board = function(_cols) {
         const canvasBoard = boardGame.getContext("2d");
         let cols = _cols;
         let rows = Math.round(documentHeight*_cols / documentWidth);
-        console.log(rows);
+
 
         let objectSize = documentWidth/_cols;
         let allObjects = [];
         let allObstacles = [];
         
-        let hero = new Character("Janusz", 5, 4);
+        let hero = new Hero("Janusz", 5, 8);
 
         return {
             initializeDefaultBoard : function(){
-                let textNr = 0;
-                /* for(let i =0;i<rows;i++){
-                    for(let j=0;j<cols;j++){
-                            textNr = Math.round(Math.random()*6);
-                            allObjects.push(new Field(j, i, textures[0][textNr]));
-                            if(i%7 == 0  && j%5 == 0 && i != 0){
-                                let stone = new Obstacle(j, i, textures[2][0]);
-                                allObjects.push(stone);
-                                allObstacles.push(stone);
-                            }
-                    }
-                } */
-
                 let indexOfMap = 0;
+            
                 for(let i = 0; i<rows; i++){
                     for(let j = 0; j<cols; j++){
                         const fieldIsWater = MAP[indexOfMap] === "W";
                         const fieldIsGrass = MAP[indexOfMap] === "G";
                         const fieldIsWay = MAP[indexOfMap] === "R";
                         const fieldIsForest = MAP[indexOfMap] === "F";
-                        
                         const fieldIsHouse = MAP[indexOfMap] === "H";
-                        if(fieldIsGrass){
-                            allObjects.push(new Field(j, i, textures[0][2]));
-                        }else if(fieldIsWater){
+
+                        if(fieldIsWater){
                             let water = new Obstacle(j, i, textures[3][0]);
                             allObjects.push(water);
-                            allObstacles.push(water);
+                            allObstacles.push(water);                        
+                        }else if(fieldIsGrass){
+                            let field = new Field(j, i, textures[0][1]);
+                            allObjects.push(field);
                         }else if(fieldIsWay){
-                            allObjects.push(new Field(j, i, textures[0][0]));
+                            let way = new Field(j, i, textures[0][0]);
+                            allObjects.push(way);
                         }else if(fieldIsForest){
+                            let field = new Field(j, i, textures[0][1]);
                             let tree = new Obstacle(j, i, textures[4][0]);
-                            let grass = new Obstacle(j, i, textures[0][2]);
-                            allObjects.push(grass);
+                            allObjects.push(field);     
                             allObjects.push(tree);
                             allObstacles.push(tree);
                         }else if(fieldIsHouse){
-                            let house = new Obstacle(j, i, textures[0][1]);
+                            let house = new Obstacle(j, i, textures[0][2]);
                             allObjects.push(house);
                             allObstacles.push(house);
-                        }
+                        }                        
                         indexOfMap++;
                     }
                 }
@@ -211,15 +170,11 @@
                     
                     field.addEventListener("load", function(){
                         canvasBoard.drawImage(field, positions[0]*objectSize, positions[1]*objectSize, objectSize, objectSize);
-                       // canvasBoard.drawImage(field,col*objectSize, row*objectSize, objectSize, objectSize);
-                        
-                      //  canvasBoard.fillText(positions, positions[0]*objectSize, positions[1]*objectSize);
-                      //  canvasBoard.fillText(positions, col*objectSize, row*objectSize);
-                      
-                        
+                                   
                     })
                     field.src = el.getTexture();                    
                 })
+
                 let champ = new Image();
                 const positionHero = hero.getPosition();
                 champ.addEventListener("load", function(){
@@ -234,9 +189,9 @@
             },
 
             moveHero : function(e){
-                    let x = hero.getX();
-                    let y = hero.getY();
-                    console.log(x,y);
+                    let heroPosition = hero.getPosition();
+                    let x = heroPosition[0];
+                    let y = heroPosition[1];
                     switch(e.keyCode){
                         
                         case 37: //left
@@ -279,7 +234,9 @@
     board.drawBoard();
 
     document.addEventListener("keydown",function(e){
-        board.moveHero(e);
+        setTimeout(function(){
+            board.moveHero(e);
+        }, 125);
     });
     
 
