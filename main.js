@@ -2,12 +2,16 @@
     const MAP = "FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFGGHHHHGGHHHHGGHHHHGGGHHHHFFFFFGGHHHHGGHHHHGGHHHHGFGHHHHFFFFFGGHHHHGGHHHHGGHHHHGGGHHHHFFWWWGGGRGGGGGRGGGGGRGGGGGGRGGFFWWWGGGRRRRRRRRRRRRRRRRRRRRRRRRWWWGGGGGGGGGRGGGGGGGGGGGGGGGFFWWWGGGGGGGGGRGGGGGGGGGGGGGGGFFWWWGGGGGGGGRRRGGGGGGGGGGGGGGFFWWWGGGGGGGGRFRGGGGGGGGGGGGGGFFFFFGGGGGGGGRRRGGGGGGGGGGGGGGFFFFFGGGGGGGGGGGGGGGGGGGGGGGGGFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF";
 
     const boardGame = document.getElementById("board");
+    const infoHero = document.getElementById("heroInfo");
 
     const documentWidth = document.body.clientWidth;
     const documentHeight = window.innerHeight || document.documentElement.clientHeight || document.body.clientHeight;
     
-    boardGame.width = documentWidth;
+    boardGame.width = 0.85 * documentWidth;
     boardGame.height = documentHeight;
+
+    infoHero.width = 0.15 * documentWidth;
+    infoHero.height = documentHeight;
 
     const textures = [
         grounds = [
@@ -69,9 +73,19 @@
         let self = PrototypeObject(_x, _y, textures[1][0]);
 
         let name = _name;
+        let hp = 100;
+        let level = 1;
 
         self.getName = function() {
             return name;
+        }
+
+        self.getHp = function() {
+            return hp;
+        }
+
+        self.getLevel = function() {
+            return level;
         }
 
         return self;
@@ -102,6 +116,11 @@
         let hero = new Hero("Janusz", 5, 8);
 
         return {
+
+            getHero : function() {
+                return hero;
+            },
+
             initializeDefaultBoard : function(){
                 let indexOfMap = 0;
             
@@ -144,7 +163,7 @@
                 const heroIsNearEndX = x < 0 || x >= cols;
                 const herOIsNearEndY = y < 0 || y >= rows;
                 const collisionExists = !this.checkCollision(x, y);
-                console.log(collisionExists);
+                
                 return !(heroIsNearEndX || herOIsNearEndY ) ^ collisionExists ? false : true;
 
 
@@ -229,15 +248,42 @@
         }
     }
 
+    let InfoHero = function() {
+        const canvas = infoHero.getContext("2d");
+
+        return {
+
+            drawInfoHero : function(hero){
+                const heroName = hero.getName();
+                const heroHP = hero.getHp();
+                const heroLevel = hero.getLevel();
+
+                let row = 0;
+                
+                canvas.font = "36px serif";
+                canvas.fillStyle="blue";
+                canvas.fillText("asd", 10, 10);
+            }
+
+        }
+
+
+    }
+
     const board = new Board(30);
     board.initializeDefaultBoard();
     board.drawBoard();
+
+    const info = new InfoHero();
+    info.drawInfoHero(board.getHero());
+
 
     document.addEventListener("keydown",function(e){
         setTimeout(function(){
             board.moveHero(e);
         }, 125);
     });
+
     
 
 
