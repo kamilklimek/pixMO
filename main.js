@@ -38,7 +38,32 @@
 
         trees = [
             "graphic/tree/tree_1.png"
+        ],
+
+        swords = [
+            "graphic/equipments/swords/mercenary.svg"
+        ],
+
+        boots = [
+            "graphic/equipments/boots/golden.svg"
+        ],
+
+        shields = [
+            "graphic/equipments/shields/wooden.svg"
+        ],
+
+        helmets = [
+            "graphic/equipments/helmets/viking.svg"
+        ],
+
+        legs = [
+            "graphic/equipments/legs/leather.svg"
+        ],
+
+        armors = [
+            "graphic/equipments/armors/chain.svg"
         ]
+
     ];
 
     let PrototypeObject = function(_x, _y, _texture){
@@ -75,6 +100,56 @@
         let name = _name;
         let hp = 100;
         let level = 1;
+        
+        let helmet, legs, shield, sword, boots, armor;
+
+        self.setHelmet = function(_helmet) {
+            helmet = _helmet;
+        }
+
+        self.setArmor = function(_armor){
+            armor = _armor;
+        }
+
+        self.setLegs = function(_legs){
+            legs = _legs;
+        }
+
+        self.setShield = function(_shield){
+            shield = _shield;
+        }
+
+        self.setSword = function(_sword){
+            sword = _sword;
+        }
+
+        self.setBoots = function(_boots){
+            boots = _boots;
+        }
+
+        self.getArmor = function() {
+            return armor;
+        }
+
+        self.getHelmet = function(){
+            return helmet;
+        }
+
+        self.getBoots = function(){
+            return boots;
+        }
+        
+        self.getLegs = function(){
+            return legs;
+        }
+
+        self.getShield = function(){
+            return shield;
+        }
+
+        self.getSword = function(){
+            return sword;
+        }
 
         self.getName = function() {
             return name;
@@ -99,6 +174,24 @@
 
     let Obstacle = function(_x, _y, _texture){
         let self = PrototypeObject(_x, _y, _texture);
+
+        return self;
+    }
+
+    let Item = function(_x, _y, _texture, _itemName){
+        let self = PrototypeObject(_x, _y, _texture);
+
+        let itemName = _itemName;
+        let isOnGround = false;
+
+
+        self.getItemName = function() {
+            return itemName;
+        }
+
+        self.getIsOnGround = function() {
+            return isOnGround;
+        }
 
         return self;
     }
@@ -183,6 +276,8 @@
 
 
             drawBoard : function(){
+               
+
                 allObjects.forEach(el =>{
                     let field = new Image();
                     const positions = el.getPosition();
@@ -194,12 +289,17 @@
                     field.src = el.getTexture();                    
                 })
 
-                let champ = new Image();
+
                 const positionHero = hero.getPosition();
+                let champ = new Image();
                 champ.addEventListener("load", function(){
                     canvasBoard.drawImage(champ, 0, 0, 250, 250, positionHero[0]*objectSize, positionHero[1]*objectSize, objectSize, objectSize);
                 })
                 champ.src = hero.getTexture();
+
+
+               
+                
             },
 
             drawGame : function(){
@@ -257,12 +357,65 @@
                 const heroName = hero.getName();
                 const heroHP = hero.getHp();
                 const heroLevel = hero.getLevel();
+                const heroHpPercent = heroHP * (infoHero.width-50) / 100;
 
-                let row = 0;
+
+                let row = 1;
                 
-                canvas.font = "36px serif";
-                canvas.fillStyle="blue";
-                canvas.fillText("asd", 10, 10);
+                canvas.font = 'bold 20pt Arial';
+                canvas.fillStyle = 'white';
+                
+                canvas.fillText(heroName, 25, row++ * 40);
+                
+                canvas.fillText("Level: " + heroLevel, 25, row++ * 40);
+
+                canvas.fillStyle = 'green';
+                canvas.fillRect(25, row++ * 35, heroHpPercent, 15);
+
+                let helmet = new Image();
+                helmet.addEventListener("load", function(){
+                    canvas.drawImage(helmet, infoHero.width/2 - 35, 125, 75, 75);
+                               
+                })
+                helmet.src = hero.getHelmet().getTexture();
+
+                let sword = new Image();
+                sword.addEventListener("load", function(){
+                    canvas.drawImage(sword, infoHero.width-85, 200, 75, 75);
+                               
+                })
+                sword.src = hero.getSword().getTexture();
+
+                let legs = new Image();
+                legs.addEventListener("load", function(){
+                    canvas.drawImage(legs, infoHero.width/2 - 35, 275, 75, 75);
+                               
+                })
+                legs.src = hero.getLegs().getTexture();
+
+                let shield = new Image();
+                shield.addEventListener("load", function(){
+                    canvas.drawImage(shield, 20, 200, 75, 75);
+                               
+                })
+                shield.src = hero.getShield().getTexture();
+
+                let boots = new Image();
+                boots.addEventListener("load", function(){
+                    canvas.drawImage(boots, infoHero.width/2 - 30, 350, 75, 75);
+                               
+                })
+                boots.src = hero.getBoots().getTexture();
+            
+                let armor = new Image();
+                armor.addEventListener("load", function(){
+                    canvas.drawImage(armor, infoHero.width/2 - 35, 195, 75, 75);
+                               
+                })
+                armor.src = hero.getArmor().getTexture();
+            
+            
+
             }
 
         }
@@ -273,6 +426,14 @@
     const board = new Board(30);
     board.initializeDefaultBoard();
     board.drawBoard();
+
+    hero = board.getHero();
+    hero.setHelmet(new Item(-1, -1, textures[8][0], "Viking Helmet"));
+    hero.setSword(new Item(-1, -1, textures[5][0], "Mercenary Sword"));
+    hero.setBoots(new Item(-1, -1, textures[6][0], "Golden boots"));
+    hero.setLegs(new Item(-1, -1, textures[9][0], "Leather legs"));
+    hero.setShield(new Item(-1, -1, textures[7][0], "Wooden shield"));
+    hero.setArmor(new Item(-1, -1, textures[10][0], "Chain armor"));
 
     const info = new InfoHero();
     info.drawInfoHero(board.getHero());

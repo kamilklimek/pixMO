@@ -3,6 +3,7 @@ body {
     padding:0;
     background-color:black;
     overflow: hidden;
+    display:flex;
 }
 
 .board {
@@ -24,7 +25,6 @@ body {
 
 .heroInfo {
     color:white;
-    background:green;
 }
 
 .character{
