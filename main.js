@@ -48,7 +48,10 @@
     function Primitive(_x, _y){
         this.x = _x;
         this.y = _y;
+        this.drawX = _x;
+        this.drawY = _y;
         this.size = 50;
+
     }
 	
 	function Field(_x, _y, _color){
@@ -59,20 +62,20 @@
             switch(direction){
 
                 case "RIGHT":
-                    this.x++;
+                    this.drawX++;
                     break;
                 
 
                 case "LEFT":
-                    this.x--;
+                    this.drawX--;
                     break;
                 
                 case "TOP":
-                    this.y++;
+                    this.drawY++;
                     break;
                 
                 case "BOTTOM":
-                    this.y--;
+                    this.drawY--;
                     break;
                 
 
@@ -84,7 +87,7 @@
             ctx.save();
             ctx.beginPath();
             ctx.fillStyle = this.color;
-            ctx.fillRect(this.x * this.size, this.y * this.size, this.size, this.size);
+            ctx.fillRect(this.drawX * this.size, this.drawY * this.size, this.size, this.size);
             ctx.fill();
             ctx.closePath();
             ctx.restore();
@@ -97,6 +100,29 @@
         Field.call(this, _x, _y, _color);
 
         this.canMoveThrough = _moveThrough;
+
+    }
+
+    function Stone(_x, _y, _texture, _moveThrough){
+        Obstacle.call(this, _x, _y, "black");
+
+        this.texture = _texture;
+        const size = 50;
+         this.draw = function(ctx){
+             
+            const x = this.drawX;
+            const y = this.drawY;
+            ctx.save();
+            let img = new Image();
+            img.addEventListener("load", function(){
+                 ctx.drawImage(img, 0, 0, 50, 50, x*size, y*size, size, size);
+                   
+              })
+              img.src = this.texture;
+              ctx.restore();
+    
+               
+         }
 
 
     }
@@ -114,20 +140,20 @@
             switch(direction){
 
                 case "RIGHT":
-                    this.x++;
+                    this.x--;
                     break;
                 
 
                 case "LEFT":
-                    this.x--;
+                    this.x++;
                     break;
                 
                 case "TOP":
-                    this.y++;
+                    this.y--;
                     break;
                 
                 case "BOTTOM":
-                    this.y--;
+                    this.y++;
                     break;
                 
 
@@ -136,6 +162,7 @@
         }
 
         this.draw = function(ctx){
+            console.log("Player: ", this.x, this.y);
             ctx.save();
             ctx.rotate(100);
             const positionToDraw = {
@@ -164,8 +191,9 @@
 		this.ctx = _canvas.getContext("2d");
 		
 		const fieldSize = 50;
-		this.fields = [];
-		const player = new Player(2, 2, "person.png");
+        this.fields = [];
+        this.obstacles = [];
+		this.player = new Player(13, 6, "person.png");
 		
 		this.initFields = function() {
 			for(let i=0;i<this.cols;i++){
@@ -177,8 +205,22 @@
                     if(left || right || top || bottom){
                         const color = randomColor(waterColors );
 					    const water = new Obstacle(j, i, color, canMoveThrough['false']);
-					    this.fields.push(water);
-                    }else{
+                        this.fields.push(water);
+                        this.obstacles.push(water);
+                    }else if(j%6 == 0 && i%7==0){
+                        const stoneTexture = "stone.png";
+                        const color = randomColor(grassColors);
+
+                        const x = randomIntFromRange(13, rows-13) + i;
+                        const y = randomIntFromRange(18, cols-23) + i;
+
+                        const stone = new Stone(x,y, stoneTexture, canMoveThrough['false']);
+                        const field = new Field(j, i, color);
+                        this.fields.push(stone);
+                        this.fields.push(field);
+                        this.obstacles.push(stone);
+                    }
+                    else{
                         const color = randomColor(grassColors);
 					    const field = new Field(j, i, color);
 					    this.fields.push(field);
@@ -213,17 +255,21 @@
             
             
             });
-			player.draw(this.ctx);
+			this.player.draw(this.ctx);
         }
 
-        const checkCollision = function(_x, _y){
+        this.checkCollision = function(_x, _y){
             this.fields.forEach(el =>{
-                if(el.x == _x && el == _y && el instanceof Obstacle){
-                   return el.canMoveThrough == canMoveThrough['false'] ? false : true;
+                
+                if(el.x == _x && el.y == _y && el instanceof Stone){
+                    console.log(el); 
+                    return false;
+                    console.log("why no return???");
                 }
+
             })
 
-
+            return true;
         }
 
 		
@@ -232,37 +278,59 @@
 	
 	function Game(_board){
 		const board = _board;
-	
+        const player = board.player;
+
+        
 		this.onKeyDown = function(e){
-			const key = e.keyCode;
+            const key = e.keyCode;
+
+            let xPlayer = player.x;
+            let yPlayer = player.y;
 			switch(key){
 
                 case 37:
-					board.fields.forEach(element =>{
-						element.update(movements[0]);
-                    })       
+                    if(board.checkCollision(xPlayer+1, yPlayer)){
+                        board.fields.forEach(element =>{
+                            element.update(movements[0]);
+                        }) 
+                        player.update(movements[0]);
+                        board.updateBoard();
+                    }
+					      
 					break;
 
 				case 38:
-                    board.fields.forEach(element =>{
-                    element.update(movements[2]);
-					})        
-					break;
+                    if(board.checkCollision(xPlayer, yPlayer-1)){
+                         board.fields.forEach(element =>{
+                            element.update(movements[2]);
+					    })        
+                        player.update(movements[2]);
+                        board.updateBoard();
+                    }
+                    break;
 
 				case 39:
-                    board.fields.forEach(element =>{
-                    element.update(movements[1]);
-					})        
+                    if(board.checkCollision(xPlayer-1, yPlayer)){
+                        board.fields.forEach(element =>{
+                        element.update(movements[1]);
+                      })        
+                      
+                     player.update(movements[1]);
+                     board.updateBoard();
+                     }       
 					break;
 
 				case 40:
-                    board.fields.forEach(element =>{
-                    element.update(movements[3]);
-					})        
+                    if(board.checkCollision(xPlayer, yPlayer+1)){
+                        board.fields.forEach(element =>{
+                        element.update(movements[3]);
+                    })        
+                    player.update(movements[3]);
+                    board.updateBoard();
+                    }         
 				break;
 
             }
-            board.updateBoard();
 		}
     
 	}
