@@ -146,7 +146,7 @@
 
                 case "LEFT":
                     this.x++;
-                    break;
+                     break;
                 
                 case "TOP":
                     this.y--;
@@ -162,7 +162,6 @@
         }
 
         this.draw = function(ctx){
-            console.log("Player: ", this.x, this.y);
             ctx.save();
             ctx.rotate(100);
             const positionToDraw = {
@@ -199,7 +198,7 @@
 			for(let i=0;i<this.cols;i++){
 				for(let j = 0;j<this.rows;j++){
                     const left = j < 13;
-                    const right = j > this.rows - 16;
+                    const right = j > this.rows - 21;
                     const top = i < 6;
                     const bottom = i > this.cols - 7;
                     if(left || right || top || bottom){
@@ -259,17 +258,18 @@
         }
 
         this.checkCollision = function(_x, _y){
-            this.fields.forEach(el =>{
-                
-                if(el.x == _x && el.y == _y && el instanceof Stone){
-                    console.log(el); 
+            let coll = false;
+            this.obstacles.forEach(el =>{
+                const collision = el.x == _x && el.y == _y;
+               
+                if(collision){
+                    coll = true;
                     return false;
-                    console.log("why no return???");
                 }
 
             })
 
-            return true;
+            return coll ? false : true;
         }
 
 		
@@ -289,7 +289,7 @@
 			switch(key){
 
                 case 37:
-                    if(board.checkCollision(xPlayer+1, yPlayer)){
+                    if(board.checkCollision(xPlayer-1, yPlayer)){
                         board.fields.forEach(element =>{
                             element.update(movements[0]);
                         }) 
@@ -310,7 +310,7 @@
                     break;
 
 				case 39:
-                    if(board.checkCollision(xPlayer-1, yPlayer)){
+                    if(board.checkCollision(xPlayer+1, yPlayer)){
                         board.fields.forEach(element =>{
                         element.update(movements[1]);
                       })        
